@@ -8,6 +8,7 @@ const db             = require('./db');
 const express        = require('express');
 const expressSession = require('express-session');
 const fs             = require('fs');
+const http          = require('http');
 const https          = require('https');
 const oauth2         = require('./oauth2');
 const passport       = require('passport');
@@ -97,10 +98,15 @@ setInterval(() => {
 // openssl req -new -key privatekey.pem -out certrequest.csr
 // openssl x509 -req -in certrequest.csr -signkey privatekey.pem -out certificate.pem
 const options = {
-  key  : fs.readFileSync(path.join(__dirname, 'certs/privatekey.pem')),
-  cert : fs.readFileSync(path.join(__dirname, 'certs/certificate.pem')),
+  key  : new Buffer(Assets.getBinary('certs/privatekey.pem')),
+  cert : new Buffer(Assets.getBinary('certs/certificate.pem')),
 };
 
-// Create our HTTPS server listening on port 3000.
-https.createServer(options, app).listen(3000);
-console.log('OAuth 2.0 Authorization Server started on port 3000');
+export default config => {
+  const {
+    port,
+  } = config;
+  // Create our HTTPS server listening on port 3000.
+  https.createServer(options, app).listen(port || 4000);
+  console.log(`OAuth 2.0 Authorization Server started on port ${port}`);
+}
